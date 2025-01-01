@@ -18,7 +18,7 @@ DB_ENGINE = create_engine("mssql+pyodbc://THOMAS-PC\\SQLEXPRESS/CryptoDB?driver=
 def fetch_crypto_data():
     params = {
         "start": "1",  # Starting rank
-        "limit": "200",  # Number of cryptocurrencies to fetch
+        "limit": "300",  # Number of cryptocurrencies to fetch
         "convert": "USD",
     }
     response = requests.get(API_URL, headers=HEADERS, params=params)
@@ -56,7 +56,7 @@ def transform_data(raw_data):
             "PercentChange24H": row["quote"]["USD"].get("percent_change_24h", None),
             "VolumeChange24H": row["quote"]["USD"].get("volume_change_24h", None),
             "LastUpdated": row["quote"]["USD"].get("last_updated", None),
-            "RecordTimestamp": datetime.now(),  # Add a timestamp for historical tracking
+            "RecordTimestamp": datetime.now(),
         },
         axis=1,
     )
