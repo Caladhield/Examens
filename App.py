@@ -14,11 +14,11 @@ HEADERS = {
 # SQLAlchemy connection string
 DB_ENGINE = create_engine("mssql+pyodbc://THOMAS-PC\\SQLEXPRESS/CryptoDB?driver=ODBC+Driver+17+for+SQL+Server")
 
-# Fetch data from CoinMarketCap API
+# Set boundaries for API
 def fetch_crypto_data():
     params = {
         "start": "1",  # Starting rank
-        "limit": "300",  # Number of cryptocurrencies to fetch
+        "limit": "300",  # Number of cryptocurrencies to get
         "convert": "USD",
     }
     response = requests.get(API_URL, headers=HEADERS, params=params)
@@ -30,7 +30,7 @@ def fetch_crypto_data():
 
 # Transform raw data into metadata and market data
 def transform_data(raw_data):
-    # Metadata transformation
+    
     metadata = raw_data[["id", "name", "symbol", "slug", "date_added"]].copy()
     metadata.rename(
         columns={
@@ -89,7 +89,7 @@ def save_market_data_to_db(market_data_df):
     except Exception as e:
         print(f"Error saving market data: {e}")
 
-# Main execution
+
 if __name__ == "__main__":
     print("Fetching data from CoinMarketCap...")
     raw_data = fetch_crypto_data()
