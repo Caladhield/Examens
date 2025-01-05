@@ -1,29 +1,44 @@
-name: Automated Script
+name: Automate Script Every 12 Hours
 
 on:
   schedule:
-    - cron: "0 */12 * * *" 
-  workflow_dispatch:
+    - cron: "0 */12 * * *"  # This schedules the job to run every 12 hours (UTC)
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  run-script:
+    runs-on: ubuntu-latest  # This runs the job on the latest Ubuntu image
 
     steps:
-      # Checkout the repository
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Set up Docker
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
+      # Step 2: Set up Python (you can specify the version you need)
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
 
-      # Build the Docker image
-      - name: Build Docker image
+      # Step 3: Install dependencies
+      - name: Install dependencies
         run: |
-          docker build -t cryptoapp .
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-      # Run the Docker container
-      - name: Run the Docker container
+      # Step 4: Set up environment variables for sensitive data (like DB credentials)
+      - name: Set environment variables
         run: |
-          docker run cryptoapp
+          echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+
+      # Step 5: Run the script
+      - name: Run script
+        run: python your_script.py  # Replace with the path to your script
+
+      # Step 6: (Optional) Upload logs for later inspection
+      - name: Upload logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: logs
+          path: ./logs  # Adjust this based on your script's logging directory
