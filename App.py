@@ -1,10 +1,14 @@
+import os
 import requests
 import pandas as pd
 import pyodbc
 from datetime import datetime
 
 # CoinMarketCap API configuration
-API_KEY = "fd56f227-193b-4a28-8a77-93f7542caeca"
+API_KEY = os.getenv("API_KEY")
+SQL_SERVER_USER = os.getenv("SQL_SERVER_USER")
+SQL_SERVER_PASSWORD = os.getenv("SQL_SERVER_PASSWORD")
+
 API_URL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
 HEADERS = {
     "Accepts": "application/json",
@@ -15,9 +19,9 @@ connection_string = (
     "Driver={ODBC Driver 18 for SQL Server};"
     "Server=tcp:cryptodatabase.database.windows.net,1433;"
     "Database=CryptoDB2;"
-    "Uid=thomas.laene2@stud.sti.se;"
-    "Pwd=Mashhad1!;"
-    "Encrypt=yes;"
+    f"Uid={SQL_SERVER_USER};"
+    f"Pwd={SQL_SERVER_PASSWORD};"
+    "Encrypt=yes;" 
     "TrustServerCertificate=no;"
     "Connection Timeout=30;"
     "Authentication=ActiveDirectoryPassword"
