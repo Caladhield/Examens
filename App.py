@@ -11,40 +11,32 @@ HEADERS = {
     "X-CMC_PRO_API_KEY": API_KEY,
 }
 
-
-<<<<<<< HEAD
-# Define the connection string using Active Directory Password Authentication
 connection_string = (
     "Driver={ODBC Driver 18 for SQL Server};"
     "Server=tcp:cryptodatabase.database.windows.net,1433;"
     "Database=CryptoDB2;"
-    "Uid=thomas.laene2@stud.sti.se;"  # Replace with your Azure AD username
-    "Pwd=Mashhad1!;"  # Replace with your Azure AD password
+    "Uid=thomas.laene2@stud.sti.se;"
+    "Pwd=Mashhad1!;"
     "Encrypt=yes;"
     "TrustServerCertificate=no;"
     "Connection Timeout=30;"
-    "Authentication=ActiveDirectoryPassword"  # Active Directory Password Authentication
+    "Authentication=ActiveDirectoryPassword"
 )
 
-# Establish connection
 try:
     conn = pyodbc.connect(connection_string)
     print("Connection successful!")
     
-    # Create a cursor from the connection to interact with the database
     cursor = conn.cursor()
 
 except Exception as e:
     print(f"Error: {e}")
 
-# Function to fetch data from CoinMarketCap API
-=======
-# Set boundaries for API
->>>>>>> 11274c6311e911033eedc5eff22c64dd7a7cf74f
+# Function to get data from CoinMarketCap API
 def fetch_crypto_data():
     params = {
         "start": "1",  # Starting rank
-        "limit": "300",  # Number of cryptocurrencies to get
+        "limit": "300",  # Number of cryptocurrencies to retrieve
         "convert": "USD",
     }
     response = requests.get(API_URL, headers=HEADERS, params=params)
@@ -56,7 +48,7 @@ def fetch_crypto_data():
 
 # Transform raw data into metadata and market data
 def transform_data(raw_data):
-    
+    # Metadata transformation
     metadata = raw_data[["id", "name", "symbol", "slug", "date_added"]].copy()
     metadata.rename(
         columns={
@@ -88,7 +80,7 @@ def transform_data(raw_data):
     )
     market_data_df = pd.DataFrame(list(market_data))
     
-    # Ensure numeric values are within bounds
+
     numeric_columns = [
         "Price", "MarketCap", "CirculatingSupply", "TotalSupply",
         "MarketCapDominance", "PercentChange1H", "PercentChange24H", "VolumeChange24H"
