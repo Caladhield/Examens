@@ -6,39 +6,27 @@ on:
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  run-script:
-    runs-on: ubuntu-latest  # This runs the job on the latest Ubuntu image
+  run:
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      # Step 2: Set up Python (you can specify the version you need)
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-      # Step 4: Set up environment variables for sensitive data (like DB credentials)
-      - name: Set environment variables
-        run: |
-          echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-
-      # Step 5: Run the script
-      - name: Run script
-        run: python App.py  # Replace with the path to your script
-
-      # Step 6: (Optional) Upload logs for later inspection
-      - name: Upload logs
-        uses: actions/upload-artifact@v2
-        with:
-          name: logs
-          path: ./logs  # Adjust this based on your script's logging directory
+    - name: Run the script
+      env:
+        API_KEY: ${{ secrets.API_KEY }}
+        SQL_SERVER_USER: ${{ secrets.SQL_SERVER_USER }}
+        SQL_SERVER_PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
+      run: |
+        python App.py
