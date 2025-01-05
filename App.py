@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-from sqlalchemy import create_engine
+import pyodbc
 from datetime import datetime
 
 # CoinMarketCap API configuration
@@ -11,10 +11,32 @@ HEADERS = {
     "X-CMC_PRO_API_KEY": API_KEY,
 }
 
-# SQLAlchemy connection string
-DB_ENGINE = create_engine("mssql+pyodbc://THOMAS-PC\\SQLEXPRESS/CryptoDB?driver=ODBC+Driver+17+for+SQL+Server")
 
-# Fetch data from CoinMarketCap API
+# Define the connection string using Active Directory Password Authentication
+connection_string = (
+    "Driver={ODBC Driver 18 for SQL Server};"
+    "Server=tcp:cryptodatabase.database.windows.net,1433;"
+    "Database=CryptoDB2;"
+    "Uid=thomas.laene2@stud.sti.se;"  # Replace with your Azure AD username
+    "Pwd=Mashhad1!;"  # Replace with your Azure AD password
+    "Encrypt=yes;"
+    "TrustServerCertificate=no;"
+    "Connection Timeout=30;"
+    "Authentication=ActiveDirectoryPassword"  # Active Directory Password Authentication
+)
+
+# Establish connection
+try:
+    conn = pyodbc.connect(connection_string)
+    print("Connection successful!")
+    
+    # Create a cursor from the connection to interact with the database
+    cursor = conn.cursor()
+
+except Exception as e:
+    print(f"Error: {e}")
+
+# Function to fetch data from CoinMarketCap API
 def fetch_crypto_data():
     params = {
         "start": "1",  # Starting rank
@@ -56,7 +78,7 @@ def transform_data(raw_data):
             "PercentChange24H": row["quote"]["USD"].get("percent_change_24h", None),
             "VolumeChange24H": row["quote"]["USD"].get("volume_change_24h", None),
             "LastUpdated": row["quote"]["USD"].get("last_updated", None),
-            "RecordTimestamp": datetime.now(),
+            "RecordTimestamp": datetime.now(),  # Add a timestamp for historical tracking
         },
         axis=1,
     )
@@ -75,16 +97,33 @@ def transform_data(raw_data):
 # Insert metadata into the database
 def save_metadata_to_db(metadata_df):
     # Check existing symbols to avoid duplicates
-    existing_symbols = pd.read_sql("SELECT Symbol FROM CryptocurrencyMetadata", DB_ENGINE)
-    new_metadata = metadata_df[~metadata_df["Symbol"].isin(existing_symbols["Symbol"])]
+    cursor = conn.cursor()
+    cursor.execute("SELECT Symbol FROM CryptocurrencyMetadata")
+    existing_symbols = [row[0] for row in cursor.fetchall()]
+    
+    new_metadata = metadata_df[~metadata_df["Symbol"].isin(existing_symbols)]
     if not new_metadata.empty:
-        new_metadata.to_sql("CryptocurrencyMetadata", DB_ENGINE, if_exists="append", index=False)
+        for index, row in new_metadata.iterrows():
+            cursor.execute("""
+                INSERT INTO CryptocurrencyMetadata (Id, Name, Symbol, Slug, DateAdded)
+                VALUES (?, ?, ?, ?, ?)
+            """, row["Id"], row["Name"], row["Symbol"], row["Slug"], row["DateAdded"])
+        conn.commit()
         print(f"Inserted {len(new_metadata)} new metadata rows.")
 
 # Insert market data into the database
 def save_market_data_to_db(market_data_df):
     try:
-        market_data_df.to_sql("CryptocurrencyMarketData", DB_ENGINE, if_exists="append", index=False)
+        cursor = conn.cursor()
+        for index, row in market_data_df.iterrows():
+            cursor.execute("""
+                INSERT INTO CryptocurrencyMarketData (CryptocurrencyId, Price, MarketCap, CirculatingSupply, TotalSupply, 
+                MarketCapDominance, PercentChange1H, PercentChange24H, VolumeChange24H, LastUpdated, RecordTimestamp)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, row["CryptocurrencyId"], row["Price"], row["MarketCap"], row["CirculatingSupply"], row["TotalSupply"],
+                row["MarketCapDominance"], row["PercentChange1H"], row["PercentChange24H"], row["VolumeChange24H"], 
+                row["LastUpdated"], row["RecordTimestamp"])
+        conn.commit()
         print(f"Inserted {len(market_data_df)} market data rows.")
     except Exception as e:
         print(f"Error saving market data: {e}")
@@ -107,3 +146,6 @@ if __name__ == "__main__":
         print("Data successfully saved.")
     else:
         print("No data fetched.")
+
+    # Close the database connection
+    conn.close()
