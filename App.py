@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 import pyodbc
 from datetime import datetime
+import pytz
 
 # CoinMarketCap API configuration
 API_KEY = os.getenv("API_KEY")
@@ -50,6 +51,12 @@ def fetch_crypto_data():
         print(f"Failed to fetch data: {response.status_code}")
         return pd.DataFrame()
 
+
+# Function to convert UTC to UTC+1 to avoid inaccurate time through Github Actions 
+def convert_to_utc_plus_1(utc_timestamp):
+    utc_time = utc_timestamp.replace(tzinfo=pytz.utc)
+    return utc_time.astimezone(pytz.timezone('Europe/Brussels'))
+
 # Transform raw data into metadata and market data
 def transform_data(raw_data):
     # Metadata transformation
@@ -78,7 +85,7 @@ def transform_data(raw_data):
             "PercentChange24H": row["quote"]["USD"].get("percent_change_24h", None),
             "VolumeChange24H": row["quote"]["USD"].get("volume_change_24h", None),
             "LastUpdated": row["quote"]["USD"].get("last_updated", None),
-            "RecordTimestamp": datetime.now(),  # Add a timestamp for historical tracking
+            "RecordTimestamp": convert_to_utc_plus_1(datetime.utcnow()),  # Add a timestamp for historical tracking
         },
         axis=1,
     )
