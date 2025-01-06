@@ -1,8 +1,8 @@
-name: Automate Script Every 12 Hours
+name: Automate Script Every 24 Hours
 
 on:
   schedule:
-    - cron: "0 */12 * * *"  # This schedules the job to run every 12 hours (UTC)
+    - cron: "0 */24 * * *"  # This schedules the job to run every 12 hours (UTC)
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
