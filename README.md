@@ -18,6 +18,7 @@ Libraries & Frameworks:
   pandas: For transforming and structuring the data
   DateTime/Pytz: To ensure timestamp consistency
   os: To manage environment variables securely
+  
 Database & Tools:
 
   Azure SQL Database: To store transformed cryptocurrency data
@@ -25,7 +26,7 @@ Database & Tools:
 
 Visualization Tool:
 
-Power BI: For creating dashboards
+  Power BI: For creating dashboards
 
 Automation & CI/CD:
 
@@ -35,41 +36,43 @@ Automation & CI/CD:
 
 Data Collection:
 
-The pipeline fetches cryptocurrency data, including price, market capitalization, supply, and percentage changes, from the CoinMarketCap API.
+  The pipeline fetches cryptocurrency data, including price, market capitalization, supply, and percentage changes, from the CoinMarketCap API.
 
 Data Transformation:
 
-Raw data is split into two tables:
-
-CryptocurrencyMetadata: Contains static details like the cryptocurrency’s name, symbol, and date added to CoinMarketcap.
-CryptocurrencyMarketData: Contains dynamic metrics like price, market cap, and percentage changes.
-Data types are cleaned and verified for numeric fields.
+  Raw data is split into two tables:
+  
+  CryptocurrencyMetadata: Contains static details like the cryptocurrency’s name, symbol, and date added to CoinMarketcap.
+  CryptocurrencyMarketData: Contains dynamic metrics like price, market cap, and percentage changes.
+  Data types are cleaned and verified for numeric fields.
 
 Database Integration:
 
-The transformed data is stored in an Azure SQL Database, providing scalability and security.
+  The transformed data is stored in an Azure SQL Database, providing scalability and security.
 
 Data Visualization:
 
-Power BI dashboards display key metrics like the latest price, market cap, and rank of selected cryptocurrencies.
-Interactive slicers and filters allow users to focus on specific cryptocurrencies or time periods.
+  Power BI dashboards display key metrics like the latest price, market cap, and rank of selected cryptocurrencies.
+  Interactive slicers and filters allow users to focus on specific cryptocurrencies or time periods.
 
 Automation:
 
-GitHub Actions runs automated tests to verify the pipeline's integrity during deployment.
-Environment variables for database credentials and API keys are securely managed using GitHub Secrets.
+  GitHub Actions runs automated tests to verify the pipeline's integrity during deployment.
+  Environment variables for database credentials and API keys are securely managed using GitHub Secrets.
 
 **Setup Instructions**
-To have this application running on your local machine you must do the following:
 
-Clone the Repository
+  To have this application running on your local machine you must do the following:
 
-Install Dependencies:
-Ensure you have Python installed. Then, run:
+  Clone the Repository
 
-pip install -r requirements.txt
+  Install Dependencies:
+  Ensure you have Python installed. Then, run:
+
+  pip install -r requirements.txt
 
 Set Up Environment Variables:
+
 Create a .env file and add the following variables:
 
   API_KEY=<your_coinmarketcap_api_key>
