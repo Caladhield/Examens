@@ -78,7 +78,9 @@ Set Up Environment Variables:
 Create a .env file and add the following variables:
 
 API_KEY=<your_coinmarketcap_api_key>
+
 SQL_SERVER_USER=<your_database_user>
+
 SQL_SERVER_PASSWORD=<your_database_password>
 
 Or for github actions integration add your credentials to Github Secrets.
